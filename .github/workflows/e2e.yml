@@ -1,0 +1,70 @@
+name: e2e
+
+# Cara pakai (aman, tanpa commit URL/kredensial asli):
+# 1. Fork repo ini.
+# 2. Buka tab Actions > e2e > Run workflow.
+# 3. Isi base_url dengan URL Railway MILIKMU, mis. https://milikmu-production.up.railway.app
+# 4. Untuk tes aliyun asli, isi scene/prefix milikmu saat dispatch (tidak tersimpan di repo).
+# JANGAN PERNAH commit URL produksi / sceneId / prefix asli ke repo.
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "API base URL (punyamu sendiri, contoh: https://milikmu-production.up.railway.app)"
+        required: true
+        default: "https://YOUR-APP.up.railway.app"
+      aliyun_scene:
+        description: "Aliyun sceneId (blank = skip real aliyun test)"
+        required: false
+        default: ""
+      aliyun_prefix:
+        description: "Aliyun prefix (blank = skip real aliyun test)"
+        required: false
+        default: ""
+      aliyun_region:
+        description: "Aliyun region"
+        required: false
+        default: "sgp"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: guard placeholder URL
+        run: |
+          if [ "${{ inputs.base_url }}" = "https://YOUR-APP.up.railway.app" ]; then
+            echo "Isi base_url dengan URL Railway milikmu dulu. Batal."
+            exit 1
+          fi
+
+      - name: version
+        run: |
+          curl -s -m 30 "${{ inputs.base_url }}/" | head -c 600
+          echo
+
+      - name: hcaptcha (test key, expect token)
+        run: |
+          curl -s -m 120 -X POST "${{ inputs.base_url }}/api/hcaptcha" \
+            -H 'Content-Type: application/json' \
+            -d '{"sitekey":"10000000-ffff-ffff-ffff-000000000001","siteurl":"https://example.com","timeout":60}' | head -c 600
+          echo
+
+      - name: aliyun bogus creds (expect fast honest INIT_FAIL)
+        run: |
+          START=$(date +%s)
+          curl -s -m 120 -X POST "${{ inputs.base_url }}/api/aliyun" \
+            -H 'Content-Type: application/json' \
+            -d '{"sceneId":"XXXX","prefix":"xxxxxx","region":"sgp","timeout":60}' | head -c 1200
+          echo
+          echo "took $(( $(date +%s) - START ))s"
+
+      - name: aliyun real creds
+        if: ${{ inputs.aliyun_scene != '' && inputs.aliyun_prefix != '' }}
+        run: |
+          curl -s -m 300 -X POST "${{ inputs.base_url }}/api/aliyun" \
+            -H 'Content-Type: application/json' \
+            -d "{\"sceneId\":\"${{ inputs.aliyun_scene }}\",\"prefix\":\"${{ inputs.aliyun_prefix }}\",\"region\":\"${{ inputs.aliyun_region }}\",\"timeout\":150,\"debug\":true}" \
+            | head -c 3000
+          echo
