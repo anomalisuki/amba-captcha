@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0b0d10">
+  <title>CaptchaX · Control Panel</title>
+  <meta name="description" content="CaptchaX API control panel">
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="CaptchaX home">
+        <span class="brand-mark">CX</span>
+        <span><strong>CaptchaX</strong><small>control panel</small></span>
+      </a>
+      <div class="top-actions">
+        <span id="apiState" class="status-pill pending"><i></i>Checking API</span>
+        <button id="themeBtn" class="icon-btn" type="button" title="Toggle theme" aria-label="Toggle theme">☼</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <div class="eyebrow">API WORKBENCH</div>
+          <h1>One place to test every endpoint.</h1>
+          <p>Minimal interface for configuring requests, running the API, and inspecting structured responses.</p>
+        </div>
+        <div class="hero-meta">
+          <div><span>Version</span><b id="version">—</b></div>
+          <div><span>Browser slot</span><b id="browserSlot">—</b></div>
+        </div>
+      </section>
+
+      <nav class="tabs" id="tabs" aria-label="Main navigation">
+        <button class="tab active" data-page="console">Console</button>
+        <button class="tab" data-page="health">Health</button>
+        <button class="tab" data-page="docs">Endpoints</button>
+      </nav>
+
+      <section id="consolePage" class="page active">
+        <div class="workspace">
+          <aside class="sidebar card">
+            <div class="side-head">
+              <div>
+                <span class="section-kicker">SOLVERS</span>
+                <h2>Endpoints</h2>
+              </div>
+              <span id="routeCount" class="count">0</span>
+            </div>
+            <label class="search">
+              <span>⌕</span><input id="endpointSearch" type="search" placeholder="Filter endpoints…">
+            </label>
+            <div id="endpointList" class="endpoint-list"></div>
+          </aside>
+
+          <section class="request-area">
+            <div class="card request-card">
+              <div class="request-head">
+                <div>
+                  <div class="route-line"><span class="method">POST</span><code id="routeName">/api/turnstile</code></div>
+                  <p id="routeDesc">Solve Turnstile using the minimal fake page flow.</p>
+                </div>
+                <button id="resetBtn" class="ghost-btn" type="button">Reset</button>
+              </div>
+              <form id="requestForm">
+                <div id="formFields" class="form-grid"></div>
+                <div class="form-actions">
+                  <button id="runBtn" class="primary-btn" type="submit"><span>Run request</span><kbd>Ctrl ↵</kbd></button>
+                  <span id="requestHint" class="hint">Rate limit and browser queue are enforced by the API.</span>
+                </div>
+              </form>
+            </div>
+
+            <div class="card response-card">
+              <div class="response-head">
+                <div>
+                  <span class="section-kicker">RESPONSE</span>
+                  <h2 id="responseTitle">Ready</h2>
+                </div>
+                <div class="response-actions">
+                  <span id="responseMeta" class="muted">No request yet</span>
+                  <button id="copyBtn" class="ghost-btn" type="button" disabled>Copy JSON</button>
+                </div>
+              </div>
+              <div id="responseBox" class="response-box empty">
+                <div class="empty-state">
+                  <div class="empty-icon">{ }</div>
+                  <strong>Nothing to inspect yet</strong>
+                  <span>Configure the request and press Run request.</span>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section id="healthPage" class="page">
+        <div class="section-heading">
+          <div><span class="section-kicker">RUNTIME</span><h2>Health & resources</h2><p>Live process information returned by <code>/api/health</code>.</p></div>
+          <button id="refreshHealth" class="ghost-btn" type="button">Refresh</button>
+        </div>
+        <div id="healthGrid" class="metrics-grid"></div>
+      </section>
+
+      <section id="docsPage" class="page">
+        <div class="section-heading">
+          <div><span class="section-kicker">REFERENCE</span><h2>Endpoint reference</h2><p>Payload fields exposed by the current backend.</p></div>
+        </div>
+        <div id="docsList" class="docs-list"></div>
+      </section>
+    </main>
+
+    <footer><span>CaptchaX</span><span>Local API control panel</span></footer>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>
